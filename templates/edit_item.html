@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Item - Grocery Inventory Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .content {
+            padding: 30px 20px;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-error {
+            background: #fed7d7;
+            color: #742a2a;
+            border-left: 4px solid #f56565;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        .required {
+            color: #f56565;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        input:disabled {
+            background-color: #edf2f7;
+            cursor: not-allowed;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            flex: 1;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-warning {
+            background: #ed8936;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #dd6b20;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #cbd5e0;
+            color: #2d3748;
+        }
+
+        .btn-secondary:hover {
+            background: #a0aec0;
+            transform: translateY(-2px);
+        }
+
+        .help-text {
+            font-size: 0.9em;
+            color: #718096;
+            margin-top: 5px;
+        }
+
+        .info-box {
+            background: #e6fffa;
+            border-left: 4px solid #38b2ac;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            color: #2c7a7b;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✏️ Edit Item</h1>
+            <p>Update item details in your grocery inventory</p>
+        </div>
+
+        <div class="content">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            <span>{{ message }}</span>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <div class="info-box">
+                <strong>Item ID:</strong> {{ item['id'] }} | <strong>Added:</strong> {{ item['added_date'] }}
+            </div>
+
+            <form method="POST">
+                <div class="form-group">
+                    <label for="name">Item Name <span class="required">*</span></label>
+                    <input type="text" id="name" name="name" value="{{ item['name'] }}" placeholder="e.g., Apples, Milk, Bread" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="quantity">Quantity <span class="required">*</span></label>
+                        <input type="number" id="quantity" name="quantity" value="{{ item['quantity'] }}" min="1" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="unit">Unit <span class="required">*</span></label>
+                        <select id="unit" name="unit" required>
+                            <option value="">Select a unit</option>
+                            <option value="kg" {% if item['unit'] == 'kg' %}selected{% endif %}>Kilogram (kg)</option>
+                            <option value="grams" {% if item['unit'] == 'grams' %}selected{% endif %}>Grams (g)</option>
+                            <option value="liters" {% if item['unit'] == 'liters' %}selected{% endif %}>Liters (L)</option>
+                            <option value="ml" {% if item['unit'] == 'ml' %}selected{% endif %}>Milliliters (ml)</option>
+                            <option value="pieces" {% if item['unit'] == 'pieces' %}selected{% endif %}>Pieces</option>
+                            <option value="dozen" {% if item['unit'] == 'dozen' %}selected{% endif %}>Dozen</option>
+                            <option value="bottles" {% if item['unit'] == 'bottles' %}selected{% endif %}>Bottles</option>
+                            <option value="boxes" {% if item['unit'] == 'boxes' %}selected{% endif %}>Boxes</option>
+                            <option value="packets" {% if item['unit'] == 'packets' %}selected{% endif %}>Packets</option>
+                            <option value="other" {% if item['unit'] == 'other' %}selected{% endif %}>Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="category">Category <span class="required">*</span></label>
+                    <select id="category" name="category" required>
+                        <option value="">Select a category</option>
+                        <option value="Fruits" {% if item['category'] == 'Fruits' %}selected{% endif %}>🍎 Fruits</option>
+                        <option value="Vegetables" {% if item['category'] == 'Vegetables' %}selected{% endif %}>🥕 Vegetables</option>
+                        <option value="Dairy" {% if item['category'] == 'Dairy' %}selected{% endif %}>🥛 Dairy</option>
+                        <option value="Grains" {% if item['category'] == 'Grains' %}selected{% endif %}>🌾 Grains</option>
+                        <option value="Meat/Poultry" {% if item['category'] == 'Meat/Poultry' %}selected{% endif %}>🍗 Meat/Poultry</option>
+                        <option value="Pantry" {% if item['category'] == 'Pantry' %}selected{% endif %}>🗄️ Pantry</option>
+                        <option value="Beverages" {% if item['category'] == 'Beverages' %}selected{% endif %}>🥤 Beverages</option>
+                        <option value="Frozen Foods" {% if item['category'] == 'Frozen Foods' %}selected{% endif %}>❄️ Frozen Foods</option>
+                        <option value="Snacks" {% if item['category'] == 'Snacks' %}selected{% endif %}>🍿 Snacks</option>
+                        <option value="Spices" {% if item['category'] == 'Spices' %}selected{% endif %}>🌶️ Spices</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="expiry_date">Expiry Date (Optional)</label>
+                    <input type="date" id="expiry_date" name="expiry_date" value="{{ item['expiry_date'] if item['expiry_date'] else '' }}">
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="btn btn-warning">💾 Update Item</button>
+                    <a href="{{ url_for('index') }}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
